@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import type { Battle } from "../../../shared/types";
+import { effectiveStats } from "../../loadout/lib/mods";
 import { turnLabel, turnProgress } from "../model/clock";
-defineProps<{ battle: Battle }>();
+const props = defineProps<{ battle: Battle }>();
+const speedOf = (id: string) => {
+  const u = props.battle.units.find((u) => u.id === id);
+  return u ? effectiveStats(u).speed : "";
+};
 </script>
 <template>
   <section class="turn-strip">
@@ -20,7 +25,7 @@ defineProps<{ battle: Battle }>();
         ]"
         ><small>{{ String(i + 1).padStart(2, "0") }}</small
         >{{ battle.units.find((u) => u.id === id)?.name
-        }}<b>{{ battle.units.find((u) => u.id === id)?.speed }}</b></span
+        }}<b>{{ speedOf(id) }}</b></span
       >
     </div>
     <div class="round-meter">

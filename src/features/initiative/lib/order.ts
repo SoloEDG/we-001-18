@@ -1,8 +1,13 @@
 import type { Battle } from "../../../shared/types";
+import { effectiveStats } from "../../loadout/lib/mods";
 export function order(b: Battle) {
   return b.units
     .filter((u) => u.hp > 0)
-    .sort((a, c) => c.speed - a.speed || a.id.localeCompare(c.id))
+    .sort(
+      (a, c) =>
+        effectiveStats(c).speed - effectiveStats(a).speed ||
+        a.id.localeCompare(c.id),
+    )
     .map((u) => u.id);
 }
 export function outcome(b: Battle) {

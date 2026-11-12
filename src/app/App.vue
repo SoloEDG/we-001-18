@@ -4,6 +4,7 @@ import { RosterPanel } from "../features/roster";
 import { ActionPanel } from "../features/tactics";
 import { TurnOrder } from "../features/initiative";
 import { ReplayPanel, downloadArchive } from "../features/replay";
+import { DeployPanel } from "../features/loadout";
 import { key } from "../shared/document";
 import { useWorkspace } from "./workspace";
 const {
@@ -15,6 +16,7 @@ const {
   notice,
   battle,
   actor,
+  deploy,
   locked,
   routes,
   targets,
@@ -24,6 +26,10 @@ const {
   wait,
   seek,
   reset,
+  toggleTalent,
+  toggleGear,
+  repair,
+  start,
 } = useWorkspace();
 </script>
 <template>
@@ -45,11 +51,14 @@ const {
         <p>利用地形，掌握先机。每一次行动，都有迹可循。</p>
       </div>
       <div class="live-badge">
-        <i />{{ cursor < 0 ? "实战指挥" : "历史回放 · 只读"
-        }}<small>消灭敌方所有角色获胜</small>
+        <i />{{
+          deploy ? "部署阶段 · 配装中" : cursor < 0 ? "实战指挥" : "历史回放 · 只读"
+        }}<small>{{
+          deploy ? "选择天赋与装备，开战后锁定" : "消灭敌方所有角色获胜"
+        }}</small>
       </div>
     </div>
-    <TurnOrder :battle="battle" />
+    <TurnOrder v-if="!deploy" :battle="battle" />
     <div class="workspace">
       <aside>
         <RosterPanel
@@ -84,25 +93,42 @@ const {
         </div>
       </div>
       <aside>
-        <ActionPanel
-          :unit="actor"
+        <DeployPanel
+          v-if="deploy"
+          :units="session.live.units"
+          :selected="selected"
           :skill="skill"
-          :locked="locked"
           :notice="notice"
+          @select="selected = $event"
+          @toggle-talent="toggleTalent"
+          @toggle-gear="toggleGear"
+          @repair="repair"
           @skill="
             skill = $event;
             brush = null;
           "
-          @wait="wait"
-        /><ReplayPanel
-          :events="session.events"
-          :cursor="cursor"
-          :playing="playback.playing.value"
-          @seek="seek"
-          @play="playback.play(cursor)"
-          @stop="playback.stop"
-          @download="downloadArchive(session)"
-        />
+          @start="start"
+        /><template v-else
+          ><ActionPanel
+            v-if="actor"
+            :unit="actor"
+            :skill="skill"
+            :locked="locked"
+            :notice="notice"
+            @skill="
+              skill = $event;
+              brush = null;
+            "
+            @wait="wait"
+          /><ReplayPanel
+            :events="session.events"
+            :cursor="cursor"
+            :playing="playback.playing.value"
+            @seek="seek"
+            @play="playback.play(cursor)"
+            @stop="playback.stop"
+            @download="downloadArchive(session)"
+        /></template>
       </aside>
     </div>
     <footer>

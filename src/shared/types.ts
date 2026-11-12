@@ -11,6 +11,10 @@ export interface Status {
   kind: "slow" | "burn" | "guard";
   turns: number;
 }
+export interface Loadout {
+  talents: string[];
+  gear: string[];
+}
 export interface Unit extends Point {
   id: string;
   name: string;
@@ -25,6 +29,7 @@ export interface Unit extends Point {
   statuses: Status[];
   moved: boolean;
   acted: boolean;
+  loadout?: Loadout;
 }
 export interface Battle {
   tiles: Tile[];
@@ -48,6 +53,7 @@ export interface Session {
   initial: Battle;
   live: Battle;
   events: BattleEvent[];
+  phase?: "deploy" | "battle";
 }
 export interface Skill {
   id: string;

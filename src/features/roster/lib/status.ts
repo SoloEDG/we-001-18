@@ -1,12 +1,15 @@
 import type { Unit } from "../../../shared/types";
+import { effectiveStats } from "../../loadout/lib/mods";
 export function moveBudget(u: Unit) {
   return Math.max(
     1,
-    u.move - (u.statuses.some((s) => s.kind === "slow") ? 2 : 0),
+    effectiveStats(u).move - (u.statuses.some((s) => s.kind === "slow") ? 2 : 0),
   );
 }
 export function armorValue(u: Unit) {
-  return u.armor + (u.statuses.some((s) => s.kind === "guard") ? 4 : 0);
+  return (
+    effectiveStats(u).armor + (u.statuses.some((s) => s.kind === "guard") ? 4 : 0)
+  );
 }
 export function tickStatuses(u: Unit) {
   for (const s of u.statuses)

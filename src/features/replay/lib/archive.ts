@@ -1,7 +1,21 @@
-import type { Session } from "../../../shared/types";
+import type { Battle, Session } from "../../../shared/types";
 import { assertBattle } from "../../../shared/document";
 export function saveArchive(s: Session) {
   localStorage.setItem("we001-session", JSON.stringify(s));
+}
+function migrateBattle(b: Battle) {
+  for (const u of b.units)
+    if (!u.loadout) u.loadout = { talents: [], gear: [] };
+}
+function migrate(s: Session) {
+  if (s.phase !== "deploy" && s.phase !== "battle") s.phase = "battle";
+  migrateBattle(s.live);
+  migrateBattle(s.initial);
+  for (const e of s.events) {
+    migrateBattle(e.before);
+    migrateBattle(e.after);
+  }
+  return s;
 }
 export function loadArchive(): Session | null {
   try {
@@ -11,7 +25,7 @@ export function loadArchive(): Session | null {
     assertBattle(s.live);
     assertBattle(s.initial);
     if (!Array.isArray(s.events)) return null;
-    return s;
+    return migrate(s);
   } catch {
     return null;
   }

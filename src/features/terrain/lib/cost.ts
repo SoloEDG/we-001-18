@@ -1,4 +1,5 @@
 import type { Terrain, Unit } from "../../../shared/types";
+import { effectiveStats } from "../../loadout/lib/mods";
 export const terrainRules: Record<
   Terrain,
   { name: string; cost: number; cover: number; glyph: string }
@@ -9,6 +10,9 @@ export const terrainRules: Record<
   ridge: { name: "高地", cost: 2, cover: 1, glyph: "△" },
   wall: { name: "断崖", cost: Infinity, cover: 0, glyph: "▰" },
 };
-export function movementCost(t: Terrain, u: Unit) {
+export function baseCost(t: Terrain, u: Unit) {
   return t === "water" && u.job === "ranger" ? 2 : terrainRules[t].cost;
+}
+export function movementCost(t: Terrain, u: Unit) {
+  return effectiveStats(u).terrain[t] ?? baseCost(t, u);
 }
